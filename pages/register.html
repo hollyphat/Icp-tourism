@@ -1,0 +1,203 @@
+<template>
+    <div class="page" data-name="register">
+        <div class="fab fab-right-bottom">
+            <a href="#" class="finish-reg color-teal">
+                <i class="icon material-icons md-only color-white">send</i>
+            </a>
+        </div>
+        <div class="navbar">
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a href="/" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title">Register</div>                
+            </div>
+        </div>
+        <div class="page-content">
+            
+
+            <div class="block-title center">Sign up for a New Account</div>
+            <div class="">
+                <div class="list">
+                    <ul>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Name</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" placeholder="Your name" required validate id="reg-name">
+                                    
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="item-content item-input">
+
+                            <div class="item-inner">
+                                <div class="item-title item-label">E-mail Address</div>
+                                <div class="item-input-wrap">
+                                    <input type="email" placeholder="Your e-mail" required validate id="reg-email">
+                                    
+                                </div>
+                            </div>
+                        </li>
+                        
+
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Password</div>
+                                <div class="item-input-wrap">
+                                    <input type="password" placeholder="Password" required validate id="reg-password">
+                                    
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Phone Number</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" id="reg-phone" placeholder="Enter phone number" required validate pattern="[0-9]*" data-error-message="Only numbers please!">
+                                    
+                                </div>
+                            </div>
+                        </li>
+                        
+
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Gender</div>
+                                <div class="item-input-wrap input-dropdown-wrap">
+                                    <select placeholder="Please choose..." id="reg-gender">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </li>
+                        
+                        
+
+                    </ul>
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    return {
+        on: {
+            pageInit: function() {
+                var app = this.$app;
+                $(".finish-reg").on("click", function(e) {
+                    e.preventDefault();
+                    //console.log($$("#up-btn"));
+                    //alert("Hello");
+
+                    var image_name = $("#reg-image").val();
+
+                    //var self = this;
+                    // Create toast
+                    if(image_name == ""){
+                        var toasts = app.toast.create({
+                            text: 'You have not upload your profile picture',
+                            position: 'bottom',
+                            closeTimeout: 3000
+                        });
+
+                        toasts.open();
+
+                        vibration();
+
+                        return;
+                    }
+
+                    //Get all vars
+                    var name = $("#reg-name").val();
+                    var password = $("#reg-password").val();
+                    var email = $("#reg-email").val();
+                    var phone = $("#reg-phone").val();                    
+                    var gender = $("#reg-gender").val();                    
+                    var image = image_name;
+
+                    if((name == "") || (password == "") || (email == "") || (phone == "") || (gender == "")){
+                        var toasts = app.toast.create({
+                            text: 'All fields are required',
+                            position: 'bottom',
+                            closeTimeout: 3000
+                        });                        
+                        toasts.open();
+                        vibration();
+
+                        return;
+                    }
+
+                    //create ajax to submit form
+                    app.dialog.preloader('Please wait, while we complete your registration!');
+                    $.ajax({
+                       url: url,
+                       type: 'post',
+                       dataType: 'json',
+                       crossDomain: true,
+                       timeout: 45000,
+                       data: {
+                           'reg-ok': '',
+                           'name': name,
+                           'password': password,
+                           'email': email,
+                           'phone': phone,                           
+                           'gender': gender
+                       },
+                        success: function (f) {
+                           //console.log(f);
+                           app.dialog.close();
+
+                            if(f.ok == 1){
+                                $("#reg-name").val("");
+                                $("#reg-password").val("");
+                                $("#reg-email").val("");
+                                $("#reg-phone").val("");
+                                $("#reg-gender").val("");
+                                
+                                
+                                var t = app.toast.create({
+                                text: f.msg,
+                                position: 'bottom',
+                                closeTimeout: 3000
+                                }).open();
+                                mainView.router.navigate("/login/",{});
+                            }else{
+                                var t = app.toast.create({
+                                text: f.msg,
+                                position: 'bottom',
+                                closeTimeout: 3000
+                                }).open();
+                            }
+
+                            
+                        },
+                        error: function (e) {
+                           app.dialog.close();
+                           console.log(e);
+                           app.toast.create({
+                               text: 'Network error, please ensure that you have active internet connections!',
+                               position: 'bottom',
+                               closeTimeout: 3000
+                           }).open();
+                           vibration();
+
+                        }
+                    });
+
+
+                });                
+            }
+        },
+    }
+</script>

@@ -1,0 +1,254 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="left sliding">
+                <a href="/" class="link back">
+                    <i class="icon icon-back"></i>
+                    <span class="ios-only">Back</span>
+                </a>
+            </div>
+            <div class="title sliding">{{$route.query.name}}</div>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="bg-res" style="background-image: url({{$route.query.image}});">
+            &nbsp;
+        </div>
+        <div class="block">
+            <h3>{{$route.query.name}}</h3>
+        </div>
+
+        
+        <div class="card card-outlines hide result">
+            <div class="card-header">
+                About
+            </div>
+            <div class="card-content card-content-padding" id="hotel-info">
+            </div>
+            <div class="card-footer">
+                <a href="" class="button" id="save-hotel" style="display: none;">Save Hotel</a>
+                <a href="" class="button" id="remove-hotel" style="display: none;">Remove From Saved Hotels</a>
+            </div>
+        </div>
+
+
+        <div class="card card-outline result hide">
+            <div class="card-header">Images</div>
+            <div class="card-content card-content-padding">
+                <div class="gallery-block popup-gallery">
+
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" name="" id="hotel_id" value="{{$route.query.id}}">
+        <div class="page-fixed-center">
+            <p class="center">
+                Network Error
+            </p>
+            <div class="row">
+                <div class="col-25">&nbsp;</div>
+                <div class="col-50">
+                    <a href="" class="button button-outline btn-retry-list button-round">Retry</a>
+                </div>
+                <div class="col-25">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+    return {        
+        on: {
+            pageInit: function() {
+                var app = this.$app;
+                var $$ = this.$;                
+                var router = this.$router;        
+                var user_id = sessionStorage.getItem("user_id");
+                if((user_id === "") || (user_id === null)){
+                    
+                    mainView.router.navigate('/login/');
+                }
+
+                var id = $("#hotel_id").val();
+                
+
+
+                load_request();
+
+                $("body").on("click",".page-fixed-center",function(e){
+                    e.preventDefault();
+                    load_request();
+                });
+
+
+                /*$("body").on("click",".popup-link",function(e){
+                    e.preventDefault();
+                    console.log($(".popup-link").length);
+                    var src = "<img src='"+$(this).attr("href")+"' class='img-responsive'>";
+                    app.dialog.alert(src);
+
+                });*/
+
+
+                $("body").off('click', '.popup-link').on('click', '.popup-link',function(e) {
+                    console.log($$(this));
+                    e.preventDefault();
+                    var src = "<img src='"+$(this).attr("href")+"' class='img-responsive'>";
+                    app.dialog.alert(src);
+                });
+
+
+                $("body").on("click","#save-hotel",function(e){
+
+                    app.toast.create({
+                        text: 'Please wait',
+                        position: 'bottom',
+                        closeTimeout: 3000
+                    }).open();
+                    
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'save_hotel': '',
+                            'user_id': sessionStorage.getItem("user_id"),
+                            'hotel_id': $("#hotel_id").val()
+                        },
+                        timeout: 30000,
+                        success: function(f){
+                            app.toast.create({
+                                text: 'Hotel added to save hotel lists',
+                                position: 'bottom',
+                                closeTimeout: 3000
+                            }).open();
+                            var saved_hotels = JSON.stringify(f.saved_hotels);
+                            sessionStorage.setItem("saved_hotels",saved_hotels);
+                            $("#save-hotel").hide();
+                            $("#remove-hotel").show();
+                        },
+                        error: function(er){
+                            app.toast.create({
+                                text: 'Network error, please ensure that you have active internet connections!',
+                                position: 'bottom',
+                                closeTimeout: 3000
+                            }).open();
+                        }
+                    });
+                    
+                });
+
+
+                $("body").on("click","#remove-hotel",function(e){
+                    app.toast.create({
+                        text: 'Please wait',
+                        position: 'bottom',
+                        closeTimeout: 3000
+                    }).open();
+                    
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'removed_hotel': '',
+                            'user_id': sessionStorage.getItem("user_id"),
+                            'hotel_id': $("#hotel_id").val()
+                        },
+                        timeout: 30000,
+                        success: function(f){
+                            app.toast.create({
+                                text: 'Hotel removed from save hotel lists',
+                                position: 'bottom',
+                                closeTimeout: 3000
+                            }).open();
+                            var saved_hotels = JSON.stringify(f.saved_hotels);
+                            sessionStorage.setItem("saved_hotels",saved_hotels);
+                            $("#remove-hotel").hide();
+                            $("#save-hotel").show();
+                        },
+                        error: function(er){
+                            app.toast.create({
+                                text: 'Network error, please ensure that you have active internet connections!',
+                                position: 'bottom',
+                                closeTimeout: 3000
+                            }).open();
+                        }
+                    });
+                });
+
+
+
+
+                function load_request(){
+                  $(".page-fixed-center").hide();
+                    app.preloader.show();
+
+                    $.ajax({
+                        url: url+"?load_hotel&user_id="+sessionStorage.getItem("user_id")+"&id="+id,
+                        type: 'get',
+                        dataType: 'json',
+                        timeout: 45000,
+                        success: function(f){
+                            app.preloader.hide();
+                            //console.log(f);                            
+                            $(".result").removeClass("hide");
+                            var hotel = f.hotels;
+                            /*var img = hotel.image;
+                            if(img.length > 0){
+                                $("#hotel-img").attr("src",base_url+"/admin/img/hotels/"+img).removeClass("hide");
+                            }*/
+                            $("#hotel-info").html(hotel.info);
+
+                            if(f.t == 1){
+                                $("#remove-hotel").show();
+                            }else{
+                                $("#save-hotel").show();
+                            }
+
+                            var imgs = f.images;
+                            var img_links = "";
+                            //$(".gallery-block").html()
+                            for(var j = 0; j <imgs.length; j++){
+                                img_links += '<a class="popup-link" href="'+base_url+"/admin/img/places/"+imgs[j].name+'">';
+                                img_links += "<img src='"+base_url+"/admin/img/places/"+imgs[j].name+"' width='100' height='100' class='img-responsive'>";
+                                img_links += '</a>';
+                            }
+                            $(".gallery-block").html(img_links);                            
+
+                        },
+                        error:function(e){
+                            app.preloader.hide();
+                            app.toast.create({
+                                    text: 'Network error, please ensure that you have active internet connections!',
+                                    position: 'bottom',
+                                    closeTimeout: 3000
+                            }).open();
+
+                            $(".page-fixed-center").show();
+                            console.log(e.responseText);
+                        }
+                    });
+                }
+
+                
+            }
+        },
+        data: function () {               
+     
+            
+        },
+
+        methods: {
+        setColorTheme: function (color) {          
+          var self = this;
+          var app = self.$app;
+                    
+        },
+      }
+        
+    }
+</script>

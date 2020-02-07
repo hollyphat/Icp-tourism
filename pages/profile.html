@@ -1,0 +1,190 @@
+<template>
+    <div class="page" data-name="chat-home">        
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title sliding">{{user_name}} Profile</div>
+                
+            </div>
+        </div>
+
+        
+        <div class="page-content">
+                        
+            <div class="padding">    
+                
+                        <h3>Update Profile</h3>
+                <div class="list">
+                    <ul>
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Name</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" placeholder="Your name" required validate id="reg-name" value="{{user_name}}">
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="item-content item-input">
+
+                            <div class="item-inner">
+                                <div class="item-title item-label">E-mail Address</div>
+                                <div class="item-input-wrap">
+                                    <input type="email" placeholder="Your e-mail" required validate id="reg-email" disabled="" value="{{email}}">
+                                </div>
+                            </div>
+                        </li>
+
+                        
+
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Password (<span style="color: #f00;">Leave empty to retain current password</span>)</div>
+                                <div class="item-input-wrap">
+                                    <input id="reg-password" type="password">
+                                </div>
+                            </div>
+                        </li>
+
+
+
+                        
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Phone Number</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" id="reg-phone" placeholder="Enter phone number" required validate pattern="[0-9]*" data-error-message="Only numbers please!" value="{{phone}}">                                    
+                                </div>
+                            </div>
+                        </li>
+                        
+
+                        <li class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Gender</div>
+                                <div class="item-input-wrap input-dropdown-wrap">
+                                    <select placeholder="Please choose..." id="reg-gender">
+                                        <option>{{gender}}</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </li>
+                        
+
+                                                
+
+                        <li class="item-content item-input">
+                            <div class="row">
+                                <input type="button" class="button button-outline" value="Update Profile" id="updateProfile">
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+                
+            </div>
+
+
+            
+        </div>
+
+        
+    </div>
+
+</template>
+<script>
+    return {        
+        on: {
+            pageInit: function() {
+                var app = this.$app;
+                var $$ = this.$;                
+                var router = this.$router;        
+                var user_id = sessionStorage.getItem("user_id");
+                if((user_id === "") || (user_id === null)){
+                    
+                    mainView.router.navigate("/login/",{});
+                }
+
+
+                $("#updateProfile").on("click",function(e){
+                    e.preventDefault();
+                    var names = $("#reg-name").val();
+                    var gender = $("#reg-gender").val();
+                    var phone = $("#reg-phone").val();
+                    var password = $("#reg-password").val();
+            
+                    if((names == "") || (phone == "")){
+                        var toasts = app.toast.create({
+                            text: 'All fields except password are required',
+                            position: 'center',
+                            closeTimeout: 3000
+                        });                        
+                        toasts.open();
+                        vibration();
+                        return;
+                    }
+
+                    app.preloader.show();
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        timeout: 30000,
+                        data: {
+                            'update-profile': '',
+                            'names' : names,
+                            'phone': phone,
+                            'gender': gender,
+                            'password': password,
+                            'user_id': sessionStorage.getItem("user_id")
+                        },
+                        error: function(er){
+                            var toasts = app.toast.create({
+                            text: 'Network error, try again',
+                            position: 'center',
+                                closeTimeout: 3000
+                            });                        
+                            toasts.open();
+                            app.preloader.hide();
+                        },
+                        success: function(f){
+                            app.preloader.hide();
+                            sessionStorage.setItem("name",names);
+                            sessionStorage.setItem("gender",gender);
+                            sessionStorage.setItem("phone",phone);
+                            
+
+                                var toasts = app.toast.create({
+                                text: 'Profile Update successfully!',
+                                position: 'bottom',
+                                closeTimeout: 3000
+                            });                        
+                            toasts.open();
+
+                        }
+                    });
+                });
+
+                
+
+                
+            }
+                
+        },
+        data: function () {        
+            return {
+                user_name: sessionStorage.getItem("name"),
+                email: sessionStorage.getItem("email"),
+                phone: sessionStorage.getItem("phone"),
+                gender: sessionStorage.getItem("gender")                
+            }
+        },
+    }
+</script>
