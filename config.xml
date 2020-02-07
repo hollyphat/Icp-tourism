@@ -6,10 +6,10 @@
         id        = "ng.com.onlinemedia.touristguide"
         version   = "1.0.2">
 
-    <name>Tourist Guide</name>
+    <name>Tourism System</name>
 
     <description>
-        Mobile Tourist Guide
+        Mobile Tourism Information System
     </description>
 
     <author href="http://onlinemedia.com.ng" email="admin@onlinemedia.com.ng">
