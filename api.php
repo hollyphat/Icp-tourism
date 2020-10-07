@@ -242,9 +242,8 @@ if(isset($_POST['removed'])){
 
     $out['saved_herbs'] = $saved_herbs_lists;
     
-    echo json_encode($out);
-    exit();
-    //my_freinds
+    die(json_encode($out));
+    
 }
 
 
@@ -296,8 +295,8 @@ if(isset($_GET['load_place'])){
         $places_images[] = $places_rs;
     }
     $out['images'] = $places_images;
-    echo json_encode($out);    
-    exit();
+    die json_encode($out);    
+    //exit();
 }
 
 
@@ -322,8 +321,8 @@ if(isset($_GET['load_hotel'])){
         $places_images[] = $places_rs;
     }
     $out['images'] = $places_images;
-    echo json_encode($out);    
-    exit();
+    die json_encode($out);    
+    //exit();
 }
 
 
@@ -353,9 +352,8 @@ if(isset($_POST['save_hotel'])){
     }
 
     $out['saved_hotels'] = $saved_herbs_lists;
-    echo json_encode($out);
-    exit();
-    //my_freinds
+    die json_encode($out);
+    //exit();
 }
 
 if(isset($_POST['removed_hotel'])){
